@@ -1,4 +1,5 @@
 var _ = require('./utils');
+var Context = require("./Context");
 
 /**
  * A module of methods for object that you want to be able to listen to.
@@ -94,6 +95,7 @@ module.exports = {
      * Publishes an event using `this.emitter` (if `shouldEmit` agrees)
      */
     trigger: function() {
+        Context.assertContext();
         var args = arguments,
             pre = this.preEmit.apply(this, args);
         args = pre === undefined ? args : _.isArguments(pre) ? pre : [].concat(pre);
@@ -106,9 +108,12 @@ module.exports = {
      * Tries to publish the event on the next tick
      */
     triggerAsync: function(){
+        var triggerContextKey = Context._key;
         var args = arguments,me = this;
         _.nextTick(function() {
-            me.trigger.apply(me, args);
+            Context.withContext(triggerContextKey, function() {
+                me.trigger.apply(me, args);
+            });
         });
     },
 
@@ -116,6 +121,7 @@ module.exports = {
      * Returns a Promise for the triggered action
      */
     triggerPromise: function(){
+        var triggerContextKey = Context._key;
         var me = this;
         var args = arguments;
 
@@ -140,7 +146,9 @@ module.exports = {
                 reject(args);
             });
 
-            me.triggerAsync.apply(me, args);
+            Context.withContext(triggerContextKey, function() {
+                me.triggerAsync.apply(me, args);
+            });
         });
 
         return promise;

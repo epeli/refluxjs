@@ -18,6 +18,8 @@ exports.listenTo = require('./listenTo');
 
 exports.listenToMany = require('./listenToMany');
 
+exports.withContext = require("./Context").withContext;
+
 
 var maker = require('./joins').staticJoinCreator;
 

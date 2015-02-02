@@ -62,3 +62,5 @@ exports.throwIf = function(val,msg){
         throw Error(msg||val);
     }
 };
+
+exports.isServer = typeof window === "undefined";
